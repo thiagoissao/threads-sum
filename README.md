@@ -32,7 +32,7 @@ p 3
 Usando um sistema de processamento puramente serial (conforme implementado em sum.c contido
 no Buraco Negro), o cenário acima levará oito segundos para terminar, conforme a seguir.
 
-![Serial implementation](1.png)
+![Serial implementation](./images/1.png)
 
 A saída final deve corresponder ao seguinte (soma, # ímpar, mínimo, máximo):
 
@@ -47,7 +47,7 @@ de tarefas para controlar as tarefas que ainda precisam ser processadas.
 Observe que se permitíssemos que a primeira tarefa fosse processada durante a espera, poderíamos
 reduzir o tempo em um único segundo:
 
-![Using threads](2.png)
+![Using threads](./images/2.png)
 
 Isso pode ser obtido dividindo o trabalho de processamento real em um thread de trabalho que pode
 funcionar paralelamente ao thread mestre original. Isso permite que o thread mestre se concentre em
@@ -60,7 +60,7 @@ mais threads de trabalho, supondo que tenhamos núcleos de CPU físicos suficien
 proveito deles. No exemplo acima, as duas últimas tarefas podem ser executadas simultaneamente
 para economizar dois segundos adicionais:
 
-![Using threads 2](3.png)
+![Using threads 2](./images/3.png)
 
 Seu programa deve funcionar da seguinte maneira. No início da execução, o thread mestre gera um
 número definido de threads de trabalho (fornecido por um parâmetro de linha de comando). Os
@@ -116,6 +116,7 @@ de linha de comando em vez de um: 1) o nome do arquivo de entrada e 2) o número
 trabalho. Seu programa deve ser compilado em sistemas Linux compatíveis com POSIX usando o
 seguinte Makefile:
 
+```
 default: sum par_sum
 
 sum: sum.c
@@ -126,6 +127,7 @@ gcc -g -O2 --std=c99 -Wall -o par_sum par_sum.c -lpthread
 
 clean:
 rm -f sum par_sum
+```
 
 Você deve submeter um pacote zip contendo: (1) makefile, (2) par_sum.c, (3) fontes do relatório em
 latex e (4) pdf do relatório.
