@@ -27,9 +27,10 @@ int main() {
 
   remove_task(queue, newTask);
   remove_task(queue, newTask);
-  remove_task(queue, newTask);
+  // remove_task(queue, newTask);
 
   printf("NOVO TAMANHO DA LISTA: %i\n", queue_size(queue));
+  printf("ESTÁ VAZIA: %i\n", is_empty(queue));
   print_queue(queue);
 
   printf("TAREFA REMOVIDA\n- Ação: %c\n- Tempo de espera: %i\n\n",
