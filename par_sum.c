@@ -23,11 +23,13 @@ long sum = 0;
 long odd = 0;
 long min = INT_MAX;
 long max = INT_MIN;
-bool done = false;              // this variable will be true if the entire file has been read
+bool done = false;                         // this variable will be true if the entire file has been read
 
-Queue* tasks;                   // tasks queue
-pthread_cond_t tasks_cv;        // tasks conditional variable
-pthread_mutex_t tasks_mutex;    // tasks lock
+Queue* tasks;                              // tasks queue
+int count_tasks = 0;
+pthread_mutex_t count_tasks_mutex;          // Flag to controls tasks queue
+pthread_cond_t tasks_cv;                    // tasks conditional variable
+pthread_mutex_t tasks_mutex;                // tasks lock
 
 // update global aggregate variables given a number
 void update_global_values(long number)
@@ -57,22 +59,21 @@ void update_global_values(long number)
 }
 
 void* workers_consumers() {
-  do
-  {
-    Task task;
+  do {
     pthread_mutex_lock(&tasks_mutex);
 
-    while (is_empty(tasks)) {
-      printf("done: %i %i\n", !is_empty(tasks), done);
+    while (is_empty(tasks) && !done) {
       pthread_cond_wait(&tasks_cv, &tasks_mutex);
     }
+
+    Task task;
     print_queue(tasks);
     remove_task(tasks, &task);
     pthread_mutex_unlock(&tasks_mutex);
 
-
     update_global_values(task.time);
-  } while (!is_empty(tasks) || !done);
+    printf("outside while conditional: %i %i\n", !is_empty(tasks), done);
+  } while (!done || !is_empty(tasks));
 
   return NULL;
 }
@@ -108,6 +109,7 @@ int main(int argc, char* argv[]) {
   pthread_mutex_init(&min_mutex, NULL);
   pthread_mutex_init(&max_mutex, NULL);
   pthread_mutex_init(&tasks_mutex, NULL);
+  pthread_mutex_init(&count_tasks_mutex, NULL);
   pthread_cond_init(&tasks_cv, NULL);
 
   tasks = malloc(sizeof(Queue));
@@ -115,7 +117,6 @@ int main(int argc, char* argv[]) {
 
   // Criação das threads para os trabalhadores
   workers = malloc(n_threads * sizeof(pthread_t));
-
   for (int i = 0; i < n_threads; i++) {
     pthread_create(&workers[i], NULL, (void*)workers_consumers, NULL);
   }
@@ -130,9 +131,7 @@ int main(int argc, char* argv[]) {
       printf("action time: %li\n", num);
       pthread_mutex_lock(&tasks_mutex);
       insert_task(tasks, task);
-      if (!is_empty(tasks)) {
-        pthread_cond_broadcast(&tasks_cv);
-      }
+      pthread_cond_broadcast(&tasks_cv);
       pthread_mutex_unlock(&tasks_mutex);
     }
     else if (action == 'e') {
@@ -147,6 +146,8 @@ int main(int argc, char* argv[]) {
 
   // Finish the entire file, set done to true and close the file
   done = true;
+  printf("SET DONE TO TRUE\n");
+  // print_queue(tasks);
   fclose(file);
 
   for (int i = 0; i < n_threads; i++) {
@@ -155,7 +156,6 @@ int main(int argc, char* argv[]) {
 
   free(tasks);
   free(workers);
-
   pthread_mutex_destroy(&sum_mutex);
   pthread_mutex_destroy(&odd_mutex);
   pthread_mutex_destroy(&min_mutex);
