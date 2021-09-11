@@ -62,7 +62,7 @@ void* workers_consumers() {
   do {
     pthread_mutex_lock(&tasks_mutex);
 
-    while (is_empty(tasks) && !done) {
+    while (is_empty(tasks) || !done) {
       pthread_cond_wait(&tasks_cv, &tasks_mutex);
     }
 
