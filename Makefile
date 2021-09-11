@@ -10,7 +10,7 @@ exec-sum: sum
 	./sum ./examples/simple.txt
 
 exec-par-sum: par_sum
-	./par_sum ./examples/simple.txt -t 3 -f ./examples/simple.txt
+	./par_sum ./examples/simple.txt -t 2 -f ./examples/simple.txt
 
 clean:
 	rm -f sum par_sum
