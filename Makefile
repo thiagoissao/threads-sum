@@ -7,10 +7,10 @@ par_sum: par_sum.c
 	gcc -g -O2 --std=c99 -Wall -o par_sum par_sum.c -lpthread ./utils/queue.c
 
 exec-sum: sum
-	./sum ./examples/simple.txt
+	./sum ./examples/medium.txt
 
 exec-par-sum: par_sum
-	./par_sum ./examples/simple.txt -t 2 -f ./examples/simple.txt
+	./par_sum -t 1 -f ./examples/simple.txt
 
 clean:
 	rm -f sum par_sum
