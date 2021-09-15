@@ -61,20 +61,20 @@ void* workers_consumers(void* i) {
     pthread_mutex_lock(&tasks_mutex);
 
     while (is_empty(tasks) && !done) {
-      printf("thread %ld: waiting\n", (long)i);
+      printf("thread %ld: dormindo...\n", (long)i);
       pthread_cond_wait(&tasks_cv, &tasks_mutex);
     }
 
     Task task;
     bool removed = remove_task(tasks, &task);
-    printf("thread %ld: starting workers_consumers. process time %i\n", (long)i, task.time);
+    printf("thread %ld: (re)iniciando trabalhador. tempo de processamento %i\n", (long)i, task.time);
     pthread_mutex_unlock(&tasks_mutex);
 
     if (removed) {
       update_global_values(task.time);
     }
   } while (!done || !is_empty(tasks));
-  printf("thread %ld: finishing workers_consumers\n", (long)i);
+  printf("thread %ld: finalizando trabalhadores\n", (long)i);
   return NULL;
 }
 
@@ -126,16 +126,15 @@ int main(int argc, char* argv[]) {
       Task task;
       task.action = action;
       task.time = num;
-      printf("ação p: %li\n", num);
       pthread_mutex_lock(&tasks_mutex);
       insert_task(tasks, task);
       pthread_cond_broadcast(&tasks_cv);
       pthread_mutex_unlock(&tasks_mutex);
     }
     else if (action == 'e') {
-      printf("inicia wait, time %li\n", num);
+      printf("inicia espera de tempo %li\n", num);
       sleep(num);
-      printf("finaliza wait\n");
+      printf("finaliza espera\n");
     }
     else {
       printf("ERROR: Unrecognized action: '%c'\n", action);
@@ -146,8 +145,7 @@ int main(int argc, char* argv[]) {
 
   // Finish the entire file, set done to true and close the file
   done = true;
-  // printf("SET DONE TO TRUE\n");
-  // print_queue(tasks);
+  pthread_cond_broadcast(&tasks_cv);
   fclose(file);
 
   for (int i = 0; i < n_threads; i++) {
